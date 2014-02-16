@@ -1,0 +1,21 @@
+#! /usr/bin/env bash
+# http://johnmacfarlane.net/pandoc/
+sudo apt-get update
+sudo apt-get dist-upgrade -y
+sudo apt-get install -y haskell-platform
+sudo apt-get install -y texlive
+# fix pdf chinese characters
+# use pandoc option '--latex-engine xelatex'
+# use `fc-list` to get font list
+# use pandoc option '-V mainfont="x" -V sansfont="y" -V monofont="z"'
+sudo apt-get install -y texlive-xetex
+# fix: LaTeX Error: File `etoolbox.sty' not found.
+sudo apt-get install -y etoolbox
+cabal update
+cabal install pandoc pandoc-citeproc
+echo $PATH | grep -q ~/.cabal/bin
+if [ $? -eq 1 ]; then
+    echo 'PATH=$PATH:~/.cabal/bin' >> ~/.bashrc
+    . ~/.bashrc
+fi
+pandoc --version
