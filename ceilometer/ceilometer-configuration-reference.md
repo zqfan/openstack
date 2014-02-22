@@ -109,7 +109,7 @@ pipeline = healthcheck cache authtoken keystoneauth ceilometer proxy-server
 ### ceilometer.api
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
-| auth_strategy | DEFAULT | StrOpt | keystone | noauth or keystone
+| auth_strategy | DEFAULT | StrOpt | keystone | noauth or keystone. 身份验证策略，只能为noauth或者keystone。
 | enable_v1_api | DEFAULT | BoolOpt | true | enable API V1
 | record_history | alarm | BoolOpt | true | Record alarm change events
 | port | api | IntOpt | 8777 | The port for the ceilometer API server
