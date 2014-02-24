@@ -4,18 +4,18 @@
 
 | Copyright (c) 2014, Huawei Technologies Co., Ltd
 |
-| Licensed under the Apache License, Version 2.0 (the "License");
-| you may not use this file except in compliance with the License.
-| You may obtain a copy of the License at
+|   Licensed under the Apache License, Version 2.0 (the "License");
+|   you may not use this file except in compliance with the License.
+|   You may obtain a copy of the License at
 |
-| http://www.apache.org/licenses/LICENSE-2.0
+|   http://www.apache.org/licenses/LICENSE-2.0
 |
-| Unless required by applicable law or agreed to in writing, software
-| distributed under the License is distributed on an "AS IS" BASIS,
-| WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
-| implied.
-| See the License for the specific language governing permissions and
-| limitations under the License.
+|   Unless required by applicable law or agreed to in writing, software
+|   distributed under the License is distributed on an "AS IS" BASIS,
+|   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+|   implied.
+|   See the License for the specific language governing permissions and
+|   limitations under the License.
 |
 | Author: ZhiQiang Fan <aji.zqfan@gmail.com>
 
@@ -32,13 +32,17 @@
 ------------------------------------------------------------------------------------------
 修改时间   修改概述                                                               修改者
 ---------- ---------------------------------------------------------------------  ---------
+2014-02-19 1、增加对请求uri中查询关键字取值value的说明；\                         f00253402
+           2、修正对象模型的类型列；\
+           3、修正若干错误。
+
 2014-02-19 1、文档json示例按照模板编写；\                                         f00253402
-           2、修正若干错误
+           2、修正若干错误。
 
 2014-02-15 1、修正了描述错误的接口，获取指定meter的statistics，由POST改为了GET；\ f00253402
            2、文档整体结构按照模板填写；\
            3、将模型中未定义的字段由-改为了N/A；\
-           4、进一步改善正确性和可使用性
+           4、进一步改善正确性和可使用性。
 
 2014-02-11 初稿	                                                                  f00253402
 ------------------------------------------------------------------------------------------
@@ -69,9 +73,9 @@ Ceilometer Havana API V2管理如下对象
 | user_id | string | r | N/A | N/A | 用户id
 | source | string | r | N/A | N/A | 来源，其他组件发出的rpc可能将其设置为openstack
 | meter | string | r | N/A | N/A | 此资源上的meter列表，最新havana分支中以冗余为由已被移除
-| first_sample_timestamp | date string | r | N/A | N/A | 数据采集最初UTC时间
-| last_sample_timestamp | date string | r | N/A | N/A | 数据采集最近UTC时间
-| metadata | string | r | N/A | N/A | 资源元数据，格式化的json对象
+| first_sample_timestamp | string | r | N/A | datetime | 数据采集最初UTC时间
+| last_sample_timestamp | string | r | N/A | datetime | 数据采集最近UTC时间
+| metadata | string | r | N/A | json dict | 资源元数据，格式化的json对象
 
 ## Meter
 Meter是资源可监测的类型，注：数据库中的meter表实际存储的是sample
@@ -107,12 +111,12 @@ Sample是一个数据点，可以理解为在某一时间点上对某个Meter的
 | counter_name | string | cr | N/A | N/A | meter名称
 | counter_type | string | cr | N/A | N/A | meter类型
 | counter_unit | string | cr | N/A | N/A | meter单位
-| counter_volume | string | cr | N/A | N/A | 值
+| counter_volume | float | cr | N/A | N/A | 值
 | user_id | string | cr | N/A | N/A | 用户id
 | project_id | string | cr | N/A | N/A | 项目id
 | resource_id | string | cr | N/A | N/A | 资源id
-| timestamp | date string | r | N/A | N/A | 时间戳
-| resource_metadata | string | cr | N/A | N/A | 资源元数据（和resource冗余吗？）
+| timestamp | string | r | N/A | datetime | 时间戳
+| resource_metadata | string | cr | N/A | json dict | 资源元数据（和resource冗余吗？）
 | message_id | string | r | N/A | N/A | 消息id
 | message_signature | string | r | N/A | N/A | 消息数据的hash值
 
@@ -124,17 +128,17 @@ Statistic是Sample的统计。
 | 属性 | 类型 | CRUD | 默认值 | 约束 | 备注 |
 |:-----|:-----|:-----|:-------|:-----|:-----|
 | unit | string | r | N/A | N/A | 单位
-| min | string | r | N/A | N/A | 最小值
-| max | string | r | N/A | N/A | 最大值
-| avg | string | r | N/A | N/A | 平均值
-| sum | string | r | N/A | N/A | 总和
-| count | string | r | N/A | N/A | 数量
-| period | string | r | N/A | N/A | 周期，单位秒
-| period_start | date string | r | N/A | N/A | 周期起始时间
-| period_end | date string | r | N/A | N/A | 周期结束时间
-| duration | string | r | N/A | N/A | 持续时间
-| duration_start | date string | r | N/A | N/A | 持续时间起始时间
-| duration_end | date string | r | N/A | N/A | 持续时间结束时
+| min | float | r | N/A | N/A | 最小值
+| max | float | r | N/A | N/A | 最大值
+| avg | float | r | N/A | N/A | 平均值
+| sum | float | r | N/A | N/A | 总和
+| count | int | r | N/A | N/A | 数量
+| period | int | r | N/A | 非负数 | 周期，单位秒
+| period_start | string | r | N/A | datetime | 周期起始时间
+| period_end | string | r | N/A | datetime | 周期结束时间
+| duration | int | r | N/A | 非负数 | 持续时间
+| duration_start | string | r | N/A | datetime | 持续时间起始时间
+| duration_end | string | r | N/A | datetime | 持续时间结束时
 | groupby | string | r | N/A | N/A | sample分组
 
 ## Alarm
@@ -148,19 +152,19 @@ alarm对应数据库alarm表
 | type | string | crw | N/A | N/A | 类型，取值为threshold或combination
 | name | string | crw | N/A | N/A | 名称，项目内唯一
 | description | string | crw | 有 | N/A | 描述，默认值根据类型而不同
-| enabled | string | crw | N/A | N/A | 是否可用
+| enabled | bool | crw | N/A | N/A | 是否可用
 | state | string | crw | N/A | 见state取值表 | 状态，取值为ok/alarm/insufficient data
-| rule | string | crw | N/A | N/A | 条件，满足条件即触发alarm
+| rule | string | crw | N/A | json dict | 条件，满足条件即触发alarm
 | user_id | string | crw | N/A | N/A | 用户id
 | project_id | string | crw | N/A | N/A | 项目id
 | evaluation_periods | string | crw | N/A | N/A | 时间窗口数量
-| period | string | crw | N/A | N/A | 时间窗口，单位秒
-| timestamp | date string | r | N/A | N/A | 最后一次更新的时间戳
-| state_timestamp | date string | r | N/A | N/A | 最后一次状态更新的时间戳
+| period | int | crw | N/A | 非负数 | 时间窗口，单位秒
+| timestamp | string | r | N/A | datetime | 最后一次更新的时间戳
+| state_timestamp | string | r | N/A | datetime | 最后一次状态更新的时间戳
 | ok_actions | string | crw | N/A | N/A | alarm状态跃迁为ok时执行的动作
 | alarm_actions | string | crw | N/A | N/A | alarm状态跃迁为alarm时执行的动作
 | insufficient_data_actions	| string | crw | N/A | N/A | alarm状态跃迁为insufficient data时执行的动作
-| repeat_actions | string | crw | N/A | N/A | 是否重复执行动作
+| repeat_actions | bool | crw | N/A | N/A | 是否重复执行动作
 
 * state取值表
 
@@ -184,7 +188,7 @@ AlarmChange对应数据库alarm_history表。
 | user_id | string | r | N/A | N/A | 用户id，alarm初始用户
 | project_id | string | r | N/A | N/A | 项目id，alarm初始项目
 | on_behalf_of | string | r | N/A | N/A | 项目id，alarm变动后归属的项目
-| timestamp |  datetime | r | N/A | N/A | 时间戳
+| timestamp |  string | r | N/A | datetime | 时间戳
 
 # API通用信息
 ## 获取token
@@ -212,11 +216,11 @@ Ceilometer中大部分对象都具有租户属性，如果是资源相关的对�
 
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
-| q.op | string | 见op表 | No | 操作符
-| q.value | string | N/A | No | 值
-| q.field | string | 见filed表 | No | 查询关键字
+| q.op | string | 见op可选值表 | No | 操作符
+| q.value | string | 见value约束表 | No | 值
+| q.field | string | 见filed可选值表 | No | 查询关键字
 
-op表
+op可选值表
 
 | 可选值 | 约束 | 备注 |
 |:-------|:-----|:-----|
@@ -226,7 +230,12 @@ op表
 | ge | field=timestamp | 大于等于
 | gt | field=timestamp | 大于
 
-field表
+value约束表
+| 可选值 | 约束 | 备注 |
+|:-------|:-----|:-----|
+| 任意合法时间字符串 | field=timpestamp | 至少形如yyyy-mm-dd，指定精确时间格式可以为yyyy-mm-ddThh:mm:ss，例如2014-02-17T03%3A01%3A05（已经经过url编码替换了特殊字符）
+
+field可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -239,7 +248,7 @@ field表
 | end_timpestamp | 结束时间戳，合法但无效
 | start_timestamp_op | 起始时间戳操作符，合法但无效
 | end_timpestamp_op | 结束时间戳操作符，合法但无效
-| metadata | 元数据
+| metadata | 元数据，必须以metadata.{key}的形式出现，key的取值无约束
 | pagination | 未实现
 
 * request body参数
@@ -268,50 +277,50 @@ field表
 | STATUS CODE 200 |
 +-+
 | ```json
-|  [ |
-|      { |
-|          "first_sample_timestamp": "2014-01-09T11:11:22.946000", |
-|          "last_sample_timestamp": "2014-01-09T11:11:22.946000", |
-|          "links": [ |
-|              { |
-|                  "href": "http://controller:8777/v2/resources/0f2ab214-103a-4111-919b-c0cdd03db629", |
-|                  "rel": "self" |
-|              }, |
-|              { |
-|                  "href": "http://controller:8777/v2/meters/network?q.field=resource_id&q.value=0f2ab214-103a-4111-919b-c0cdd03db629", |
-|                  "rel": "network" |
-|              }, |
-|              { |
-|                  "href": "http://controller:8777/v2/meters/network.create?q.field=resource_id&q.value=0f2ab214-103a-4111-919b-c0cdd03db629", |
-|                  "rel": "network.create" |
-|              } |
-|          ], |
-|          "metadata": { |
-|              "admin_state_up": "True", |
-|              "event_type": "network.create.end", |
-|              "host": "network.aio", |
-|              "id": "0f2ab214-103a-4111-919b-c0cdd03db629", |
-|              "name": "int-net", |
-|              "provider:network_type": "local", |
-|              "provider:physical_network": "None", |
-|              "provider:segmentation_id": "None", |
-|              "shared": "False", |
-|              "status": "ACTIVE", |
-|              "tenant_id": "313a8bc21b994e60b93d6fff7c1e0c1b" |
-|          }, |
-|          "project_id": "313a8bc21b994e60b93d6fff7c1e0c1b", |
-|          "resource_id": "0f2ab214-103a-4111-919b-c0cdd03db629", |
-|          "user_id": "30aee73695744a6096e35fdab25b6766" |
-|      } |
-|  ] |
-| ``` |
+|  [
+|      {
+|          "first_sample_timestamp": "2014-01-09T11:11:22.946000",
+|          "last_sample_timestamp": "2014-01-09T11:11:22.946000",
+|          "links": [
+|              {
+|                  "href": "http://controller:8777/v2/resources/0f2ab214-103a-4111-919b-c0cdd03db629",
+|                  "rel": "self"
+|              },
+|              {
+|                  "href": "http://controller:8777/v2/meters/network?q.field=resource_id&q.value=0f2ab214-103a-4111-919b-c0cdd03db629",
+|                  "rel": "network"
+|              },
+|              {
+|                  "href": "http://controller:8777/v2/meters/network.create?q.field=resource_id&q.value=0f2ab214-103a-4111-919b-c0cdd03db629",
+|                  "rel": "network.create"
+|              }
+|          ],
+|          "metadata": {
+|              "admin_state_up": "True",
+|              "event_type": "network.create.end",
+|              "host": "network.aio",
+|              "id": "0f2ab214-103a-4111-919b-c0cdd03db629",
+|              "name": "int-net",
+|              "provider:network_type": "local",
+|              "provider:physical_network": "None",
+|              "provider:segmentation_id": "None",
+|              "shared": "False",
+|              "status": "ACTIVE",
+|              "tenant_id": "313a8bc21b994e60b93d6fff7c1e0c1b"
+|          },
+|          "project_id": "313a8bc21b994e60b93d6fff7c1e0c1b",
+|          "resource_id": "0f2ab214-103a-4111-919b-c0cdd03db629",
+|          "user_id": "30aee73695744a6096e35fdab25b6766"
+|      }
+|  ]
+| ```
 +-+
 
 * 过滤条件JSON请求样例，metaquery
 
 
 +-+
-| GET /v2/resources?q.op=eq&q.value=network.nonexistenthostname&q.field=metadata.host |
+| GET /v2/resources?q.op=eq&q.value=network.nonexistentHostName&q.field=metadata.host |
 +-+
 | N/A |
 +-+
@@ -361,42 +370,42 @@ field表
 +-+
 | STATUS CODE 200 |
 +-+
-| ```json |
-| { |
-|    "first_sample_timestamp": "2014-01-09T11:11:22.946000", |
-|     "last_sample_timestamp": "2014-01-09T11:11:22.946000", |
-|     "links": [ |
-|         { |
-|             "href": "http://controller:8777/v2/resources/0f2ab214-103a-4111-919b-c0cdd03db629", |
-|             "rel": "self" |
-|         }, |
-|         { |
-|             "href": "http://controller:8777/v2/meters/network?q.field=resource_id&q.value=0f2ab214-103a-4111-919b-c0cdd03db629", |
-|             "rel": "network" |
-|         }, |
-|         { |
-|             "href": "http://controller:8777/v2/meters/network.create?q.field=resource_id&q.value=0f2ab214-103a-4111-919b-c0cdd03db629", |
-|             "rel": "network.create" |
-|         } |
-|     ], |
-|     "metadata": { |
-|         "admin_state_up": "True", |
-|         "event_type": "network.create.end", |
-|         "host": "network.aio", |
-|         "id": "0f2ab214-103a-4111-919b-c0cdd03db629", |
-|         "name": "int-net", |
-|         "provider:network_type": "local", |
-|         "provider:physical_network": "None", |
-|         "provider:segmentation_id": "None", |
-|         "shared": "False", |
-|         "status": "ACTIVE", |
-|         "tenant_id": "313a8bc21b994e60b93d6fff7c1e0c1b" |
-|     }, |
-|     "project_id": "313a8bc21b994e60b93d6fff7c1e0c1b", |
-|     "resource_id": "0f2ab214-103a-4111-919b-c0cdd03db629", |
-|     "user_id": "30aee73695744a6096e35fdab25b6766" |
-| } |
-| ``` |
+| ```json
+| {
+|    "first_sample_timestamp": "2014-01-09T11:11:22.946000",
+|     "last_sample_timestamp": "2014-01-09T11:11:22.946000",
+|     "links": [
+|         {
+|             "href": "http://controller:8777/v2/resources/0f2ab214-103a-4111-919b-c0cdd03db629",
+|             "rel": "self"
+|         },
+|         {
+|             "href": "http://controller:8777/v2/meters/network?q.field=resource_id&q.value=0f2ab214-103a-4111-919b-c0cdd03db629",
+|             "rel": "network"
+|         },
+|         {
+|             "href": "http://controller:8777/v2/meters/network.create?q.field=resource_id&q.value=0f2ab214-103a-4111-919b-c0cdd03db629",
+|             "rel": "network.create"
+|         }
+|     ],
+|     "metadata": {
+|         "admin_state_up": "True",
+|         "event_type": "network.create.end",
+|         "host": "network.aio",
+|         "id": "0f2ab214-103a-4111-919b-c0cdd03db629",
+|         "name": "int-net",
+|         "provider:network_type": "local",
+|         "provider:physical_network": "None",
+|         "provider:segmentation_id": "None",
+|         "shared": "False",
+|         "status": "ACTIVE",
+|         "tenant_id": "313a8bc21b994e60b93d6fff7c1e0c1b"
+|     },
+|     "project_id": "313a8bc21b994e60b93d6fff7c1e0c1b",
+|     "resource_id": "0f2ab214-103a-4111-919b-c0cdd03db629",
+|     "user_id": "30aee73695744a6096e35fdab25b6766"
+| }
+| ```
 +-+
 
 ## 度量（Meter）
@@ -412,9 +421,9 @@ field表
 |:-------|:---------|:-----|:-----|:-----|
 | q.op | string | 只能为eq | No | 操作符
 | q.value | string | N/A | No | 值
-| q.field | string | 见filed表 | No | 查询关键字
+| q.field | string | 见filed可选值表 | No | 查询关键字
 
-field表
+field可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -495,11 +504,17 @@ field表
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
 | q.op | string | 只能为eq | No | 操作符
-| q.value | string | N/A | No | 值
-| q.field | string | 见filed表 | No | 查询关键字
-| limit | int | N/A | No | 返回结果数
+| q.value | string | 见value约束表 | No | 值
+| q.field | string | 见filed可选值表 | No | 查询关键字
+| limit | int | 必须为非负数 | No | 返回结果数
 
-field表
+value约束表
+
+| 可选值 | 约束 | 备注 |
+|:-------|:-----|:-----|
+| 任意合法时间字符串 | field={start,end} | 至少形如yyyy-mm-dd，指定精确时间格式可以为yyyy-mm-ddThh:mm:ss，例如2014-02-17T03%3A01%3A05（已经经过url编码替换了特殊字符）
+
+field可选值表
 
 | 可选值 | 约束 | 备注 |
 |:-------|:-----|:-----|
@@ -509,12 +524,12 @@ field表
 | source | N/A | 来源名称
 | start | N/A | 起始时间戳
 | end | N/A | 结束时间戳
-| start_timestamp_op | 见tsop表 | 起始时间戳操作符
-| end_timpestamp_op | 见tsop表 | 结束时间戳操作符
-| metadata | N/A | 元数据
+| start_timestamp_op | 见tsop可选值表 | 起始时间戳操作符
+| end_timpestamp_op | 见tsop可选值表 | 结束时间戳操作符
+| metadata | N/A | 元数据，形如metadata.{key}，key取值无限制
 | meter | N/A | 度量
 
-tsop表
+见tsop可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -651,17 +666,17 @@ Sample结构
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
 | counter_name | string | N/A | YES | 度量名称
-| counter_type | string | YES | YES | 度量类型
+| counter_type | string | 见counter可选值表 | YES | 度量类型
 | counter_unit | string | N/A | YES | 度量单位
-| counter_volume | float | N/A | YES | 度量值
+| counter_volume | float | N/A | YES | 度量值，可以取负数！
 | resource_id | string | N/A | YES | 资源id
 | project_id | string | admin可指定 | NO | 项目id
 | user_id | string | admin可指定 | NO | 用户id
-| resource_metadata	string | json object | NO | 资源元数据
-| timestamp | date string | 必须为时间格式 | NO | 时间戳
+| resource_metadata	string | json dict | NO | 资源元数据
+| timestamp | string | 必须为时间格式 | NO | 时间戳
 | message_signature | string | N/A | NO | 消息签名，可以设置但没有效果
 
-couter_type可选值
+couter_type可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -731,12 +746,18 @@ HTTP POST成功一般会返回CODE 201 CREATED，此处ceilometer返回200也是
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
 | q.op | string | 只能为eq | No | 操作符
-| q.value | string | N/A | No | 值
-| q.field | string | 见filed取值表 | No | 查询关键字
-| period | int | 非负数 | No | 间隔
-| groupby | string | 见groupby取值表 | No | 分组
+| q.value | string | 见value约束表 | No | 值
+| q.field | string | 见filed可选值表 | No | 查询关键字
+| period | int | 非负整数 | No | 间隔
+| groupby | string | 见groupby可选值表 | No | 分组
 
-field取值表
+value约束表
+
+| 可选值 | 约束 | 备注 |
+|:-------|:-----|:-----|
+| 任意合法时间字符串 | field={start,end} | 至少形如yyyy-mm-dd，指定精确时间格式可以为yyyy-mm-ddThh:mm:ss，例如2014-02-17T03%3A01%3A05（已经经过url编码替换了特殊字符）
+
+field可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -746,12 +767,12 @@ field取值表
 | source | 来源名称
 | start | 起始时间戳
 | end | 结束时间戳
-| start_timestamp_op | 起始时间戳操作符，见tsop取值表
-| end_timpestamp_op | 结束时间戳操作符，见tsop取值表
-| metadata | 元数据
+| start_timestamp_op | 起始时间戳操作符，见tsop可选值表
+| end_timpestamp_op | 结束时间戳操作符，见tsop可选值表
+| metadata | 元数据，形如metadata.{key}，key取值无限制
 | meter | 无效
 
-tsop取值表
+tsop可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -761,7 +782,7 @@ tsop取值表
 | ge | 大于等于
 | gt | 大于
 
-groupby取值表
+groupby可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -897,9 +918,9 @@ groupby取值表
 |:-------|:---------|:-----|:-----|:-----|
 | q.op | string | 只能为eq | No | 操作符
 | q.value | string | N/A | No | 值
-| q.field | string | 见filed取值表 | No | 查询关键字
+| q.field | string | 见filed可选值表 | No | 查询关键字
 
-field取值表
+field可选值表
 
 | 可选值 | Value类型 | 约束 | 备注
 |:-------|:----------|:-----|:-----|
@@ -907,7 +928,7 @@ field取值表
 | project | string | N/A | 项目id
 | user | string | N/A | 用户id
 | name | string | N/A | 名称
-| enabled | string | 见enabled取值表 | 是否启用
+| enabled | string | 见enabled约束表 | 是否启用
 | pagination | int | N/A | 未实现
 
 enabled取值表
@@ -1013,27 +1034,27 @@ enabled取值表
 
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
-| N/A | json dict | N/A | YES | Alarm数据
+| N/A | string | json dict | YES | Alarm数据
 
 Alarm结构体
 
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
 | name | string | 唯一 | YES | 名称
-| type | string | YES | YES | 类型
-| threshold_rule | json dict | type=threshold | YES | 阈值规则
-| combination_rule | json dict | type=combination | YES | alarm id
+| type | string | 见type可选值表 | YES | 类型
+| threshold_rule | string | json dict，当type=threshold时需指定 | YES | 阈值规则
+| combination_rule | string | json dict，当type=combination时需指定 | YES | alarm id
 | project_id | string | admin可指定 | NO | alarm所属项目
 | user_id | string | admin可指定 |NO | alarm所属用户
 | description | string | N/A | NO | 描述
-| state | string | YES | NO | 状态
-| enabled | bool | YES | NO | 是否启用
+| state | string | 见state可选值表 | NO | 状态
+| enabled | bool | 见enabled约束表 | NO | 是否启用
 | alarm_action | string | N/A | NO | 报警时的动作
 | ok_action | string | N/A | NO | 正常时的动作
 | insufficient_data_action | string | N/A | NO | 数据不正常时的动作
 | repeat_actions | bool | N/A | NO | 是否重复执行动作，为真则每次进入状态均执行
 
-type可选值
+type可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -1048,15 +1069,15 @@ threshold_rule结构体
 | threshold | float | N/A | YES | 阈值
 | period | int | N/A | NO | 周期
 | evaluation_periods | int | N/A | NO | 计算周期数
-| statistic | string | YES | NO | 统计选项
-| comparison_operator | string | YES | NO | 比较符
-| query | json list | YES | NO | 统计时的过滤项
+| statistic | string | 见statistic可选值表 | NO | 统计选项
+| comparison_operator | string | 见comparison_operator可选值表 | NO | 比较符
+| query | string | json list | NO | 统计时的过滤项
 
 combination_rule结构体
 
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
-| alarm_ids | json list | N/A | YES | alarm id list
+| alarm_ids | string | json list | YES | alarm id list
 | operator | string | YES | NO | 逻辑操作符
 
 alarm_ids结构体
@@ -1065,7 +1086,7 @@ alarm_ids结构体
 |:-------|:---------|:-----|:-----|:-----|
 | N/A | uuid | 必须存在 | YES | alarm id
 
-state可选值
+state可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -1073,7 +1094,14 @@ state可选值
 | alarm | 警报
 | insufficient data | 数据不正确
 
-statistic可选值
+enabled约束表
+
+| 可选值 | 备注 |
+|:-------|:-----|
+| t, true, on, y, yes, 1 | 大小写不敏感，取值为True
+| 其他 | 取值为False
+
+statistic可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -1083,7 +1111,7 @@ statistic可选值
 | sum | 总值
 | count | Sample的数量
 
-comparison_operator可选值
+comparison_operator可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -1094,7 +1122,7 @@ comparison_operator可选值
 | ge | 大于等于
 | gt | 大于
 
-operator可选值
+operator可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -1367,9 +1395,17 @@ operator可选值
 
 * response body参数
 
-| REST VERB | URI | DESCRIPTION |
-|:----------|:----|:------------|
-| N/A | string | N/A | YES | 告警状态
+| 参数名 | 参数类型 | 约束 | 必选 | 备注 |
+|:-------|:---------|:-----|:-----|:-----|
+| N/A | string | 见state可选值表 YES 告警状态
+
+state可选值表
+
+| 可选值 | 备注 |
+|:-------|:-----|
+| ok | 正常
+| alarm | 警报
+| insufficient data | 数据不正确
 
 * 相关配置
 
@@ -1405,9 +1441,9 @@ operator可选值
 
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
-| N/A | string | YES | YES | 告警状态
+| N/A | string | 见state可选值表 | YES | 告警状态
 
-可选值
+state可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
@@ -1435,7 +1471,15 @@ operator可选值
 
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
-| N/A | string | N/A | YES | 告警状态
+| N/A | string | 见state可选值表 YES 告警状态
+
+state可选值表
+
+| 可选值 | 备注 |
+|:-------|:-----|
+| ok | 正常
+| alarm | 警报
+| insufficient data | 数据不正确
 
 * 相关配置
 
