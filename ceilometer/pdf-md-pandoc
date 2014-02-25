@@ -1,0 +1,1 @@
+pandoc --number-sections --latex-engine=xelatex --template=template.latex -V date="`date '+%b %d %Y'`" -V tables "$1" -o ${1%\.*}.pdf
