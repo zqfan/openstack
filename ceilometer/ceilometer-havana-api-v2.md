@@ -116,7 +116,7 @@ Sample是一个数据点，可以理解为在某一时间点上对某个Meter的
 | project_id | string | cr | N/A | N/A | 项目id
 | resource_id | string | cr | N/A | N/A | 资源id
 | timestamp | string | r | N/A | datetime | 时间戳
-| resource_metadata | string | cr | N/A | json dict | 资源元数据（和resource冗余吗？）
+| resource_metadata | string | cr | N/A | json dict | 资源元数据
 | message_id | string | r | N/A | N/A | 消息id
 | message_signature | string | r | N/A | N/A | 消息数据的hash值
 
@@ -142,7 +142,7 @@ Statistic是Sample的统计。
 | groupby | string | r | N/A | N/A | sample分组
 
 ## Alarm
-alarm对应数据库alarm表
+Alarm对应数据库alarm表
 
 * Alarm属性表
 
@@ -231,6 +231,7 @@ op可选值表
 | gt | field=timestamp | 大于
 
 value约束表
+
 | 可选值 | 约束 | 备注 |
 |:-------|:-----|:-----|
 | 任意合法时间字符串 | field=timpestamp | 至少形如yyyy-mm-dd，指定精确时间格式可以为yyyy-mm-ddThh:mm:ss，例如2014-02-17T03%3A01%3A05（已经经过url编码替换了特殊字符）
@@ -672,8 +673,8 @@ Sample结构
 | resource_id | string | N/A | YES | 资源id
 | project_id | string | admin可指定 | NO | 项目id
 | user_id | string | admin可指定 | NO | 用户id
-| resource_metadata	string | json dict | NO | 资源元数据
-| timestamp | string | 必须为时间格式 | NO | 时间戳
+| resource_metadata |	string | json dict | NO | 资源元数据
+| timestamp | string | datetime | NO | 时间戳
 | message_signature | string | N/A | NO | 消息签名，可以设置但没有效果
 
 couter_type可选值表
@@ -701,7 +702,7 @@ couter_type可选值表
 |         "counter_name": "router",
 |         "counter_type": "gauge",
 |         "counter_unit": "router",
-|         "counter_volume": "1",
+|         "counter_volume": "-1",
 |         "resource_id": "x"
 |     }
 | ]
@@ -721,7 +722,7 @@ HTTP POST成功一般会返回CODE 201 CREATED，此处ceilometer返回200也是
 |         "counter_name": "router",
 |         "counter_type": "gauge",
 |         "counter_unit": "router",
-|         "counter_volume": 1.0,
+|         "counter_volume": -1.0,
 |         "message_id": "90919fdc-927b-11e3-9310-548998f6e71d",
 |         "project_id": "313a8bc21b994e60b93d6fff7c1e0c1b",
 |         "resource_id": "x",
@@ -1126,8 +1127,8 @@ operator可选值表
 
 | 可选值 | 备注 |
 |:-------|:-----|
-| and |	alarm同时发生
-| or | 其中一个alarm发生
+| and | 逻辑与，条件同时满足判定为真
+| or | 逻辑或，条件之一满足判定为真
 
 * response body参数
 
@@ -1397,7 +1398,7 @@ operator可选值表
 
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
-| N/A | string | 见state可选值表 YES 告警状态
+| N/A | string | 见state可选值表 | YES | 告警状态
 
 state可选值表
 
@@ -1471,7 +1472,7 @@ state可选值表
 
 | 参数名 | 参数类型 | 约束 | 必选 | 备注 |
 |:-------|:---------|:-----|:-----|:-----|
-| N/A | string | 见state可选值表 YES 告警状态
+| N/A | string | 见state可选值表 | YES | 告警状态
 
 state可选值表
 
@@ -1542,7 +1543,37 @@ history是alarm的变动记录，对应模型AlarmChange，对应数据库表ala
 | [
 |     {
 |         "alarm_id": "7505cd03-dc0f-4539-9906-d019783148fe",
-|         "detail": "{\"alarm_actions\": [], \"user_id\": \"f86eeee169ed48cf892ceac3d5e27a9f\", \"name\": \"test-member-create-alarm\", \"timestamp\": \"2014-02-08T10:07:03.870024\", \"enabled\": true, \"state_timestamp\": \"2014-02-08T10:07:03.870024\", \"rule\": {\"meter_name\": \"instance\", \"evaluation_periods\": 1, \"period\": 60, \"statistic\": \"avg\", \"threshold\": 5.0, \"query\": [{\"field\": \"project_id\", \"value\": \"aebb7f33b7fc4cf486d3a2cdacac8ac1\", \"op\": \"eq\"}], \"comparison_operator\": \"eq\"}, \"alarm_id\": \"7505cd03-dc0f-4539-9906-d019783148fe\", \"state\": \"insufficient data\", \"insufficient_data_actions\": [], \"repeat_actions\": false, \"ok_actions\": [], \"project_id\": \"aebb7f33b7fc4cf486d3a2cdacac8ac1\", \"type\": \"threshold\", \"description\": \"Alarm when instance is eq a avg of 5.0 over 60 seconds\"}",
+|         "detail": {
+|             "alarm_actions": [],
+|             "alarm_id": "7505cd03-dc0f-4539-9906-d019783148fe",
+|             "description": "Alarm when instance is eq a avg of 5.0 over 60 seconds",
+|             "enabled": true,
+|             "insufficient_data_actions": [],
+|             "name": "test-member-create-alarm",
+|             "ok_actions": [],
+|             "project_id": "aebb7f33b7fc4cf486d3a2cdacac8ac1",
+|             "repeat_actions": false,
+|             "rule": {
+|                 "comparison_operator": "eq",
+|                 "evaluation_periods": 1,
+|                 "meter_name": "instance",
+|                 "period": 60,
+|                 "query": [
+|                     {
+|                         "field": "project_id",
+|                         "op": "eq",
+|                         "value": "aebb7f33b7fc4cf486d3a2cdacac8ac1"
+|                     }
+|                 ],
+|                 "statistic": "avg",
+|                 "threshold": 5.0
+|             },
+|             "state": "insufficient data",
+|             "state_timestamp": "2014-02-08T10:07:03.870024",
+|             "timestamp": "2014-02-08T10:07:03.870024",
+|             "type": "threshold",
+|             "user_id": "f86eeee169ed48cf892ceac3d5e27a9f"
+|         },
 |         "event_id": "758e4f1d-cf0a-4b19-b715-856528be7aba",
 |         "on_behalf_of": "aebb7f33b7fc4cf486d3a2cdacac8ac1",
 |         "project_id": "aebb7f33b7fc4cf486d3a2cdacac8ac1",
@@ -1553,3 +1584,5 @@ history是alarm的变动记录，对应模型AlarmChange，对应数据库表ala
 | ]
 | ```
 +-+
+
+detail的实际返回是："{\"alarm_actions\": [], \"user_id\": \"f86eeee169ed48cf892ceac3d5e27a9f\", \"name\": \"test-member-create-alarm\", \"timestamp\": \"2014-02-08T10:07:03.870024\", \"enabled\": true, \"state_timestamp\": \"2014-02-08T10:07:03.870024\", \"rule\": {\"meter_name\": \"instance\", \"evaluation_periods\": 1, \"period\": 60, \"statistic\": \"avg\", \"threshold\": 5.0, \"query\": [{\"field\": \"project_id\", \"value\": \"aebb7f33b7fc4cf486d3a2cdacac8ac1\", \"op\": \"eq\"}], \"comparison_operator\": \"eq\"}, \"alarm_id\": \"7505cd03-dc0f-4539-9906-d019783148fe\", \"state\": \"insufficient data\", \"insufficient_data_actions\": [], \"repeat_actions\": false, \"ok_actions\": [], \"project_id\": \"aebb7f33b7fc4cf486d3a2cdacac8ac1\", \"type\": \"threshold\", \"description\": \"Alarm when instance is eq a avg of 5.0 over 60 seconds\"}"。考虑到这可能是一个bug，且对排版不利，示例中对这段string做了json转换。
