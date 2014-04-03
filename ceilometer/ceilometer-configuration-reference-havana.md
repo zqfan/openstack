@@ -55,8 +55,7 @@ This document summarizes configuration reference for Ceilometer Havana. You can 
 
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
-| notification_driver | DEFAULT | MultiStrOpt | N/A | Driver or drivers to handle sending notifications，推荐设置为messaging
-| rpc_backend | DEFAULT | StrOpt | glance.openstack.common.rpc.impl_kombu | The messaging module to use, defaults to kombu.推荐设置为rabbit
+| notifier_strategy | DEFAULT | StrOpt | default | 通知策略,可以为logging, rabbit, qpid或者default, 默认为不发送通知.推荐设置为rabbit
 
 ### cinder
 你需要在cinder.conf中进行下列选项的设置
