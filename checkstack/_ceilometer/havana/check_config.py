@@ -24,47 +24,6 @@ import sys
 from oslo.config import cfg
 
 LOG = logging.getLogger(__name__)
-ERRORS = 0
-
-#class ConfigCheck(object):
-#    def __init__(self, cfg):
-#        self.cfg = cfg
-#
-#    def assert_equal(self, opt, value, group='DEFAULT', level='error'):
-#        self.cfg.register_opts([opt], group=group)
-#        _value = self.cfg[group][opt.name]
-#        if _value != value:
-#            msg = ('%s - Expect %s=%s but get %s'
-#                   % (self.cfg.project, opt.name, value, _value))
-#            self._print_msg(msg, level)
-#
-#    def _print_msg(self, msg, level):
-#        if level.lower() not in ('error', 'warn', 'info'):
-#            raise Exception('unrecognized level: %s' % level)
-#
-#        if level.lower() in ['error']:
-#            global ERRORS
-#            ERRORS += 1
-#            print >> sys.stderr, '    %s - %s' % (level.upper(), msg)
-#        else:
-#            print '    %s - %s' % (level.upper(), msg)
-#
-#    def assert_set(self, opt, group='DEFAULT', level='error'):
-#        self.cfg.register_opts([opt], group=group)
-#        if not self.cfg[group][opt.name]:
-#            msg = ('%s - Expect %s is set but not set'
-#                   % (self.cfg.project, opt.name))
-#            self._print_msg(msg, level)
-#
-#    def assert_in(self, opt, value, group='DEFAULT', level='error'):
-#        self.cfg.register_opts([opt], group=group)
-#        _values = self.cfg[group][opt.name]
-#        if type(_values) == str:
-#            _values = _values.split()
-#        if value not in _values:
-#            msg = ('%s - Expect %s in %s but not found'
-#                   % (self.cfg.project, value, opt.name))
-#            self._print_msg(msg, level)
 
 def error(func):
     func.level = 'error'
@@ -305,12 +264,3 @@ class SwiftControlConfigChecker(ConfigChecker):
     @error
     def check_ceilometer_filter(self):
         pass
-
-#def check_swift_control():
-#    cfg.CONF(['--config-file', '/etc/swift/proxy-server.conf'],
-#             project='swift')
-#    c = ConfigCheck(cfg.CONF)
-#    c.assert_equal(cfg.StrOpt('use'), 'egg:ceilometer#swift',
-#                   'filter:ceilometer')
-#    c.assert_in(cfg.StrOpt('pipeline'), 'ceilometer', 'pipeline:main')
-
