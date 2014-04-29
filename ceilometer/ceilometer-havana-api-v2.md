@@ -32,19 +32,21 @@
 ---------------------------------------------------------------------------------------------
 修改时间    修改概述                                                               修改者
 ----------- ---------------------------------------------------------------------  ----------
-2014-02-19  1、增加对请求uri中查询关键字取值value的说明；\                         f00253402
+2014-04-29  1、增加指标的说明
+
+2014-02-19  1、增加对请求uri中查询关键字取值value的说明；\
             2、修正对象模型的类型列；\
             3、修正若干错误。
 
-2014-02-19  1、文档json示例按照模板编写；\                                         f00253402
+2014-02-19  1、文档json示例按照模板编写；\
             2、修正若干错误。
 
-2014-02-15  1、修正了描述错误的接口，获取指定meter的statistics，由POST改为了GET；\ f00253402
+2014-02-15  1、修正了描述错误的接口，获取指定meter的statistics，由POST改为了GET；\
             2、文档整体结构按照模板填写；\
             3、将模型中未定义的字段由-改为了N/A；\
             4、进一步改善正确性和可使用性。
 
-2014-02-11  初稿                                                                   f00253402
+2014-02-11  初稿
 ---------------------------------------------------------------------------------------------
 
 # 概述
@@ -91,6 +93,63 @@ Meter是资源可监测的类型，注：数据库中的meter表实际存储的�
 | project_id | string | r | N/A | N/A | 项目id
 | source | string | r | N/A | N/A | 来源
 | user_id | string | r | N/A | N/A | 用户id
+
+当前, 有如下的指标, 粗体为周期性指标:
+
+1. nova:
+    * **instance**
+    * **instance:{flavor}**
+    * memory
+    * **cpu**
+    * **cpu_util**
+    * vcpus
+    * **disk.read.requests**
+    * **disk.write.requests**
+    * **disk.read.bytes**
+    * **disk.write.bytes**
+    * disk.root.size
+    * disk.ephemeral.size
+    * **network.incoming.bytes**
+    * **network.outgoing.bytes**
+    * **network.incoming.packets**
+    * **network.outgoing.packets**
+1. neutron:
+    * network
+    * network.create
+    * network.update
+    * subnet
+    * subnet.create
+    * subnet.update
+    * port
+    * port.create
+    * port.update
+    * router
+    * router.create
+    * router.update
+    * **ip.floating**
+    * ip.floating.create
+    * ip.floating.update
+1. glance:
+    * **image**
+    * **image.size**
+    * image.update
+    * image.upload
+    * image.delete
+    * image.download
+    * image.serve
+1. cinder:
+    * volume
+    * volume.size
+1. swift:
+    * **storage.objects**
+    * **storage.objects.size**
+    * **storage.objects.containers**
+    * storage.objects.incoming.bytes
+    * storage.objects.outgoing.bytes
+    * storage.api.request
+1. kwapi:
+    * **energy**
+    * **power**
 
 * type取值表
 
