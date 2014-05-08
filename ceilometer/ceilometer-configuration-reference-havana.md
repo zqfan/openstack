@@ -31,8 +31,8 @@ This document summarizes configuration reference for Ceilometer Havana. You can 
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
 | connection | database | StrOpt | sqlite:////ceilometer/openstack/common/db/$sqlite_db | 数据库连接地址，例如connection = mongodb://ceilometer:CEILOMETER_DBPASS@controller:27017/ceilometer
-| rabbit_host | DEFAULT | StrOpt | localhost | AMQP服务主机名或ip地址，多节点下需设置
-| auth_host | keystone_authtoken | StrOpt | 127.0.0.1 | Keystone服务所在节点主机名或ip地址
+| rabbit_host | DEFAULT | StrOpt | localhost | AMQP服务主机名或ip地址，推荐设置为控制节点ip或域名
+| auth_host | keystone_authtoken | StrOpt | 127.0.0.1 | Keystone服务所在节点，推荐设置为控制节点ip或域名
 | admin_user | keystone_authtoken | StrOpt | N/A | ceilometer用户名称，推荐设置为ceilometer（也可为admin但不推荐）
 | admin_password | keystone_authtoken | StrOpt | N/A | ceilometer用户密码
 | admin_tenant_name | keystone_authtoken | StrOpt | admin | ceilometer项目名称，推荐设置为service（也可为admin但不推荐）
@@ -45,10 +45,10 @@ This document summarizes configuration reference for Ceilometer Havana. You can 
 
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
-| instance_usage_audit | DEFAULT | BoolOpt | false | Generate periodic compute.instance.exists notifications，推荐设置为true
-| instance_usage_audit_period | DEFAULT | StrOpt | month | time period to generate instance usages for.  Time period must be hour, day, month or year，推荐设置为hour
-| notify_on_state_change | DEFAULT | StrOpt | N/A | If set, send compute.instance.update notifications on instance state changes.  Valid values are None for no notifications, "vm_state" for notifications on VM state changes, or "vm_and_task_state" for notifications on VM and task state changes. 推荐设置为vm_and_task_state
-| notification_driver | DEFAULT | MultiStrOpt | N/A | Driver or drivers to handle sending notifications，推荐分别设置为nova.openstack.common.notifier.rpc_notifier和ceilometer.compute.nova_notifier
+| instance_usage_audit | DEFAULT | BoolOpt | false | Generate periodic compute.instance.exists notifications，是否允许nova进行审计，推荐保留默认设置，否则会对instance指标造成不必要的干扰
+| instance_usage_audit_period | DEFAULT | StrOpt | month | time period to generate instance usages for.  Time period must be hour, day, month or year，推荐保留默认设置
+| notify_on_state_change | DEFAULT | StrOpt | N/A | If set, send compute.instance.update notifications on instance state changes.  Valid values are None for no notifications, "vm_state" for notifications on VM state changes, or "vm_and_task_state" for notifications on VM and task state changes. 当虚拟机状态或者任务状态发生变化时发生通知，推荐保留默认设置，否则会对instance指标造成不必要的干扰
+| notification_driver | DEFAULT | MultiStrOpt | N/A | Driver or drivers to handle sending notifications，消息驱动（这是一个可以多次设置的配置项），必须设置，推荐分别设置为nova.openstack.common.notifier.rpc_notifier和ceilometer.compute.nova_notifier
 
 ### glance
 你需要在glance-api.conf中进行下列选项的设置
@@ -62,11 +62,12 @@ This document summarizes configuration reference for Ceilometer Havana. You can 
 
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
-| control_exchange | DEFAULT | StrOpt | openstack | AMQP exchange to connect to if using RabbitMQ or Qpid，推荐设置为cinder
-| notification_driver | DEFAULT | MultiStrOpt | N/A | Driver or drivers to handle sending notifications，推荐设置为cinder.openstack.common.notifier.rpc_notifier
+| control_exchange | DEFAULT | StrOpt | openstack | AMQP exchange to connect to if using RabbitMQ or Qpid，消息队列频道，推荐设置为cinder
+| notification_driver | DEFAULT | MultiStrOpt | N/A | Driver or drivers to handle sending notifications，消息驱动，推荐设置为cinder.openstack.common.notifier.rpc_notifier
 
 ### swift
 swift与其他OpenStack核心项目不同，你需要在proxy-server.conf中设置
+
 ```
 [filter:ceilometer]
 use = egg:ceilometer#swift
@@ -74,23 +75,25 @@ use = egg:ceilometer#swift
 pipeline = healthcheck cache authtoken keystoneauth ceilometer proxy-server
 ```
 
+即指定ceilometer过滤器加入api调用栈，这能够允许swift在操作时发送消息到ceilometer进行监控。
+
 ## 推荐选项（Recommended）
 以下选项可以不设置，但性能及安全性将受到影响
 
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
 | metering_secret | publisher_rpc | StrOpt | change this or be hacked | 对监测消息签名的密钥，默认值就是最好的提示，compute节点上此项配置必须和control节点上一致
-| auth_protocol | keystone_authtoken | StrOpt | https | 采用默认值即可。配置成https能提高安全性
-| debug | DEFAULT | BoolOpt | False | 采用默认值即可。打印DEBUG级别的日志，为true时会降低性能，仅在调测时打开。
-| verbose | DEFAULT | BoolOpt | False | 采用默认值即可。打印详细日志，为true时会降低性能，仅在调测时打开。
+| auth_protocol | keystone_authtoken | StrOpt | https | 身份验证协议，采用默认值即可。配置成https能提高安全性
+| debug | DEFAULT | BoolOpt | False | 日志级别，采用默认值即可。打印DEBUG级别的日志，为true时会降低性能，仅在调测时打开。
+| verbose | DEFAULT | BoolOpt | False | 日志详情，采用默认值即可。打印详细日志，为true时会降低性能，仅在调测时打开。
 
 ## 优化选项（Optimized）
 以下选项若正确设置，能让你的工作更轻松愉快
 
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
-| log_dir | DEFAULT | StrOpt | N/A | 有的时候有的发布版的服务启动脚本没有添加这个选项导致日志都不见了，在配置文件中加上这个能保证总是有
-| auth_uri | keystone_authtoken | StrOpt | N/A | 配置成形如https://controller:5000，能减少keystone报警
+| log_dir | DEFAULT | StrOpt | N/A | 日志目录，有的时候有的发布版的服务启动脚本没有添加这个选项导致日志都不见了，在配置文件中加上这个能保证总是有
+| auth_uri | keystone_authtoken | StrOpt | N/A | 身份验证地址，推荐配置成形如https://controller:5000，能减少keystone报警
 
 # 服务视角（Service Perspective）
 ## ceilometer
@@ -102,43 +105,43 @@ pipeline = healthcheck cache authtoken keystoneauth ceilometer proxy-server
 | rest_notifier_ssl_verify | alarm | BoolOpt | true | Verify the SSL Server certificate when calling alarm action
 | notifier_rpc_topic | alarm | StrOpt | alarm_notifier | the topic ceilometer uses for alarm notifier messages
 | partition_rpc_topic | alarm | StrOpt | alarm_partition_coordination | the topic ceilometer uses for alarm partition coordination messages
-| evaluation_interval | alarm | IntOpt | 60 | Period of evaluation cycle, should be >= than configured pipeline interval for collection of underlying metrics.
-| evaluation_service | alarm | StrOpt | ceilometer.alarm.service.SingletonAlarmService | Class to launch as alarm evaluation service
+| evaluation_interval | alarm | IntOpt | 60 | Period of evaluation cycle, should be >= than configured pipeline interval for collection of underlying metrics. 报警刷新周期，单位为秒，这个值最好比监控数据采集周期略小，否则易引起alarm状态非正常跳变。
+| evaluation_service | alarm | StrOpt | ceilometer.alarm.service.SingletonAlarmService | Class to launch as alarm evaluation service 告警刷新服务驱动
 
 ### ceilometer.api
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
 | auth_strategy | DEFAULT | StrOpt | keystone | noauth or keystone. 身份验证策略，只能为noauth或者keystone。
-| enable_v1_api | DEFAULT | BoolOpt | true | enable API V1
-| record_history | alarm | BoolOpt | true | Record alarm change events
-| port | api | IntOpt | 8777 | The port for the ceilometer API server
-| host | api | StrOpt | 0.0.0.0 | The listen IP for the ceilometer API server
+| enable_v1_api | DEFAULT | BoolOpt | true | enable API V1 启用v1接口
+| record_history | alarm | BoolOpt | true | Record alarm change events 记录报警变动信息
+| port | api | IntOpt | 8777 | The port for the ceilometer API server api监听的端口
+| host | api | StrOpt | 0.0.0.0 | The listen IP for the ceilometer API server api监听的地址
 
 ### ceilometer.collector
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
-| file_path | dispatcher_file | StrOpt | N/A | Name and the location of the file to record meters.
-| max_bytes | dispatcher_file | IntOpt | 0 | The max size of the file
-| backup_count | dispatcher_file | IntOpt | 0 | The max number of the files to keep
+| file_path | dispatcher_file | StrOpt | N/A | Name and the location of the file to record meters. 当数据持久化到文件时,文件的路径
+| max_bytes | dispatcher_file | IntOpt | 0 | The max size of the file 持久化文件的大小上限
+| backup_count | dispatcher_file | IntOpt | 0 | The max number of the files to keep 持久化文件备份数量
 | udp_address | collector | StrOpt | 0.0.0.0 | address to bind the UDP socket to disabled if set to an empty string
 | udp_port | collector | IntOpt | 4952 | port to bind the UDP socket to
 | ack_on_event_error | collector | BoolOpt | true | Acknowledge message when event persistence fails
 | store_events | collector | BoolOpt | false | Save event details
-| dispatcher | collector | MultiStrOpt | database | dispatcher to process metering data
-| glance_control_exchange | DEFAULT | StrOpt | glance | Exchange name for Glance notifications
-| http_control_exchanges | DEFAULT | MultiStrOpt | [nova, glance, neutron, cinder] | Exchanges name to listen for notifications 
-| neutron_control_exchange | DEFAULT | StrOpt | neutron | Exchange name for Neutron notifications
+| dispatcher | collector | MultiStrOpt | database | dispatcher to process metering data 数据持久化策略,可以多次配置
+| glance_control_exchange | DEFAULT | StrOpt | glance | Exchange name for Glance notifications 消息队列glance频道名称
+| http_control_exchanges | DEFAULT | MultiStrOpt | [nova, glance, neutron, cinder] | Exchanges name to listen for notifications 消息队列监听的频道
+| neutron_control_exchange | DEFAULT | StrOpt | neutron | Exchange name for Neutron notifications 消息队列neutron频道名称
 | reseller_prefix | DEFAULT | StrOpt | AUTH_ | Swift reseller prefix. Must be on par with reseller_prefix in proxy-server.conf.
-| cinder_control_exchange | DEFAULT | StrOpt | cinder | Exchange name for Cinder notifications
+| cinder_control_exchange | DEFAULT | StrOpt | cinder | Exchange name for Cinder notifications 消息队列cinder频道名称
 
 ### ceilometer.compute
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
-| nova_control_exchange | DEFAULT | StrOpt | nova | exchagne name which receives nova notification
+| nova_control_exchange | DEFAULT | StrOpt | nova | exchagne name which receives nova notification 消息队列nova频道名称
 | reserved_metadata_namespace | DEFAULT | ListOpt | metering. | list of metadata prefixes reserved for metering use
 | reserved_metadata_length | DEFAULT | IntOpt | 256 | limit on length of reserved metadata values
 | hypervisor_inspector | DEFAULT | StrOpt | libvirt | Inspector to use for inspecting the hypervisor layer
-| libvirt_type | DEFAULT | StrOpt | kvm | Libvirt domain type (valid options are: kvm, lxc, qemu, uml, xen)
+| libvirt_type | DEFAULT | StrOpt | kvm | Libvirt domain type (valid options are: kvm, lxc, qemu, uml, xen) 虚拟化管理器类型
 | libvirt_uri | DEFAULT | StrOpt | N/A | Override the default libvirt URI (which is dependent on libvirt_type)
 
 ### 未明确的（unclassified）
@@ -151,31 +154,31 @@ pipeline = healthcheck cache authtoken keystoneauth ceilometer proxy-server
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
 | metering_topic | publisher_rpc | StrOpt | metring | the topic ceilometer uses for metering messages
-| metering_secret | publisher_rpc | StrOpt | change this or be hacked | Secret value for signing metering messages
+| metering_secret | publisher_rpc | StrOpt | change this or be hacked | Secret value for signing metering messages 监控消息的签名密钥
 
 #### ceilometer.sample
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
-| sample_source | DEFAULT | StrOpt | openstack | Source for samples emited on this instance
+| sample_source | DEFAULT | StrOpt | openstack | Source for samples emited on this instance 监控数据来源
 
 #### ceilometer.service
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
-| os_username | service_credentials | StrOpt | ceilometer | Username to use for openstack service access
-| os_password | service_credentials | StrOpt | admin | Password to use for openstack service access
-| os_tenant_id | service_credentials | StrOpt | N/A | Tenant ID to use for openstack service access
-| os_tenant_name | service_credentials | StrOpt | service | Tenant name to use for openstack service access
+| os_username | service_credentials | StrOpt | ceilometer | Username to use for openstack service access 服务使用的用户名,必须有admin权限
+| os_password | service_credentials | StrOpt | admin | Password to use for openstack service access 服务使用的密码
+| os_tenant_id | service_credentials | StrOpt | N/A | Tenant ID to use for openstack service access 服务使用的项目id
+| os_tenant_name | service_credentials | StrOpt | service | Tenant name to use for openstack service access 服务使用的项目名称
 | os_cacert | service_credentials | StrOpt | N/A | Certificate chain for SSL validation
-| os_auth_url | service_credentials | StrOpt | http://localhost:5000/v2.0 | Auth URL to use for openstack service access
+| os_auth_url | service_credentials | StrOpt | http://localhost:5000/v2.0 | Auth URL to use for openstack service access 服务身份验证地址
 | os_region_name | service_credentials | StrOpt | N/A | Region name to use for openstack service endpoints
-| os_endpoint_type | service_credentials | StrOpt | publicURL | Type of endpoint in Identity service catalog to use for communication with OpenStack services.
+| os_endpoint_type | service_credentials | StrOpt | publicURL | Type of endpoint in Identity service catalog to use for communication with OpenStack services. 服务使用的地址类型
 
 #### ceilometer.storage
 | Option | Section | Type | Default | Description |
 |:-------|:--------|:-----|:--------|:------------|
 | database_connection | DEFAULT | StrOpt | N/A | DEPRECATED - Database connection string
 | mysql_engine | DEFAULT | StrOpt | InnoDB | MySQL engine
-| time_to_live | database | IntOpt | -1 | number of seconds that samples are kept in the database for (<= 0 means forever)
+| time_to_live | database | IntOpt | -1 | number of seconds that samples are kept in the database for (<= 0 means forever) 数据库中数据有效时间
 
 ## keystone
 ### keystoneclient.middleware.auth_token
