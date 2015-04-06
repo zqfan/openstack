@@ -1,0 +1,2 @@
+# This script only useful when you are behind an evil proxy
+for i in pep8 py27 docs; do source .tox/$i/bin/activate && pip install -U -r requirements.txt -r test-requirements.txt; deactivate; done
