@@ -15,7 +15,7 @@ cabal update
 cabal install pandoc pandoc-citeproc
 echo $PATH | grep -q ~/.cabal/bin
 if [ $? -eq 1 ]; then
-    echo 'PATH=$PATH:~/.cabal/bin' >> ~/.bashrc
-    . ~/.bashrc
+    echo 'export PATH=$PATH:~/.cabal/bin' >> ~/.bashrc
 fi
-pandoc --version
+echo "Install finished"
+echo "Open a new shell and run 'pandoc --version' to check it"
