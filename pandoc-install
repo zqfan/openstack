@@ -12,7 +12,7 @@ sudo apt-get install -y texlive-xetex
 # fix: LaTeX Error: File `etoolbox.sty' not found.
 sudo apt-get install -y etoolbox
 cabal update
-cabal install pandoc pandoc-citeproc
+cabal install --force-reinstalls pandoc pandoc-citeproc
 echo $PATH | grep -q ~/.cabal/bin
 if [ $? -eq 1 ]; then
     echo 'export PATH=$PATH:~/.cabal/bin' >> ~/.bashrc
