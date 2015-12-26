@@ -17,5 +17,9 @@ echo $PATH | grep -q ~/.cabal/bin
 if [ $? -eq 1 ]; then
     echo 'export PATH=$PATH:~/.cabal/bin' >> ~/.bashrc
 fi
-echo "Install finished"
 echo "Open a new shell and run 'pandoc --version' to check it"
+# the following command might not be needed
+# fix: LaTeX Error: File `xxx.sty' not found.
+tlmgr init-usertree
+sudo tlmgr --self --all update
+sudo tlmgr install everypage multirow titling laspage
