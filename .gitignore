@@ -37,4 +37,10 @@ nosetests.xml
 
 *.html
 *.pdf
-missfont.log
+*.aux
+*.log
+*.nav
+*.out
+*.snm
+*.toc
+*.vrb
