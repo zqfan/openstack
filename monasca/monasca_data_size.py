@@ -5,8 +5,6 @@ import os
 from monascaclient import client
 from monascaclient import ksclient
 
-# openstack endpoint list --service monitoring
-endpoint = "https://10.240.48.8:8070/v2.0"
 auth_url = os.environ.get('OS_AUTH_URL')
 username = os.environ.get('OS_USERNAME')
 password = os.environ.get('OS_PASSWORD')
@@ -18,12 +16,13 @@ def mon_client():
         'username': username,
         'password': password,
         'auth_url': auth_url,
-        'project_name' : project_name
+        'project_name' : project_name,
+        'endpoint_type': 'adminURL'  # publicURL is default bu may require https and slower than adminURL
     }
 
     _ksclient = ksclient.KSClient(**kwargs)
     kwargs = {'token': _ksclient.token}
-    return client.Client('2_0', endpoint, **kwargs)
+    return client.Client('2_0', _ksclient.monasca_url, **kwargs)
 
 m = mon_client().metrics
 
