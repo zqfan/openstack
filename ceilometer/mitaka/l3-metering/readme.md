@@ -1,3 +1,5 @@
+# steps
+
 os ubuntu 16.04, using devstack to deploy openstack mitaka
 
 0. create a vm and associate a floating ip to it, for i.e. 172.24.4.3
@@ -35,7 +37,11 @@ neutron-metering-agent collects data per 30s for each meter-label and report to 
 }
 ~~~
 
-related refs:
+# TODO
+
+* according to feedback from community, the cidr can be a specific ip addr, but it should be an internal network ip rather than a floating ip due to iptable limitation, I experiment this on my environment but fail to collect data
+
+# refs:
 
 * https://bugs.launchpad.net/openstack-manuals/+bug/1318604
 * http://docs.openstack.org/admin-guide/networking-adv-config.html
