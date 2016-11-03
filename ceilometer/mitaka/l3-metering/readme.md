@@ -1,15 +1,12 @@
 os ubuntu 16.04, using devstack to deploy openstack mitaka
 
 0. create a vm and associate a floating ip to it, for i.e. 172.24.4.3
-0. make sure ``neutron.services.metering.metering_plugin.MeteringPlugin`` is set in [DEFAULT]service_plugins of /etc/neutron/neutron.conf
-0. create /etc/neutron/metering_agent.ini
-0. run process ``/usr/bin/python /usr/local/bin/neutron-metering-agent --config-file /etc/neutron/neutron.conf --config-file /etc/neutron/metering_agent.ini`` in stack screen, neutron-metering-agent collects data per 30s for each meter-label and report to AMQP per 5m by default.
 0. create meter label for demo project: ``neutron meter-label-create --tenant-id `openstack project show demo -f value -c id` demo-l3-meter``
 0. create meter rule: ``neutron meter-label-rule-create demo-l3-meter 172.24.4.0/24 --direction ingress``, note it should be a range rather than an individual ip addr, which means 172.24.4.3/32 doesn't work
 0. create meter rule: ``neutron meter-label-rule-create demo-l3-meter 172.24.4.0/24 --direction egress``
 0. query sample in ceilometer: ``ceilometer sample-list -m bandwidth -q metadata.tenant_id=`openstack project show demo -f value -c id```, note that ceilometer only record bytes as value by default.
 
-a sample of bandwidth is like:
+neutron-metering-agent collects data per 30s for each meter-label and report to AMQP per 5m by default. a sample of bandwidth is like:
 
 ~~~json
 {
